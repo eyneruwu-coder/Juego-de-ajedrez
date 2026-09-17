@@ -1,46 +1,35 @@
-const NOMBRE_CACHE = 'ajedrez-v1.0';
+const NOMBRE_CACHE = 'ajedrez-v1.1';
 const ARCHIVOS_CACHE = [
   './',
   './index.html',
-  './manifest.json'
+  './manifest.json',
+  './Torre.png',
+  './Caballo.png',
+  './Peon.png',
+  './Reina.png',
+  './Rey.png',
+  './Alfil.png'
 ];
 
-// Instalación: guardar todo en caché
-self.addEventListener('install', evento => {
-  console.log('📦 Instalando app y guardando archivos...');
-  evento.waitUntil(
+self.addEventListener('install', e => {
+  console.log('馃摝 Guardando todo...');
+  e.waitUntil(
     caches.open(NOMBRE_CACHE)
       .then(cache => cache.addAll(ARCHIVOS_CACHE))
       .then(() => self.skipWaiting())
   );
 });
 
-// Activación: limpiar versiones antiguas
-self.addEventListener('activate', evento => {
-  console.log('✅ App activa — funcionará sin conexión');
-  evento.waitUntil(
+self.addEventListener('activate', e => {
+  e.waitUntil(
     caches.keys().then(claves =>
-      Promise.all(
-        claves.filter(c => c !== NOMBRE_CACHE).map(c => caches.delete(c))
-      )
+      Promise.all(claves.filter(c => c !== NOMBRE_CACHE).map(c => caches.delete(c)))
     ).then(() => self.clients.claim())
   );
 });
 
-// ESTRATEGIA: Primero caché, si no hay pedir a red
-self.addEventListener('fetch', evento => {
-  evento.respondWith(
-    caches.match(evento.request)
-      .then(respuesta => {
-        // Devolver de caché si existe, sino pedir
-        return respuesta || fetch(evento.request)
-          .then(respuestaRed => {
-            // Guardar nueva respuesta
-            caches.open(NOMBRE_CACHE).then(cache => {
-              cache.put(evento.request, respuestaRed.clone());
-            });
-            return respuestaRed;
-          });
-      })
+self.addEventListener('fetch', e => {
+  e.respondWith(
+    caches.match(e.request).then(r => r || fetch(e.request))
   );
 });
