@@ -18,9 +18,7 @@ h1{color:#fff;margin-bottom:16px;font-size:1.8rem}
 .oscura{background:#b58863}
 .pieza{width:80%;height:80%;object-fit:contain;transition:transform .2s ease}
 .pieza:hover{transform:scale(1.1)}
-/* Negras = tal cual */
 .pieza.negra{filter:none}
-/* Blancas = convertidas a blanco */
 .pieza.blanca{filter:invert(1) brightness(1.1)}
 </style>
 </head>
@@ -28,11 +26,10 @@ h1{color:#fff;margin-bottom:16px;font-size:1.8rem}
 
 <h1>♚ Ajedrez ♔</h1>
 <div id="estado" class="estado">✅ Cargando...</div>
-
 <div class="tablero" id="tablero"></div>
 
 <script>
-// TUS imágenes — AHORA EN TU PROPIO PROYECTO ✅
+// NOMBRES EXACTOS de tus archivos
 const iconos = {
   Torre:    './Torre.png',
   Caballo:  './Caballo.png',
@@ -69,19 +66,17 @@ for(let f=0;f<8;f++){
   }
 }
 
-// Estado conexión
 const estado = document.getElementById('estado');
 function actualizar(){
   estado.className = 'estado' + (navigator.onLine?'':' offline');
   estado.textContent = navigator.onLine
     ? '✅ Conectado — ¡Listo para funcionar sin internet!'
-    : '🔴 Sin conexión — sigue funcionando desde lo guardado ✅';
+    : '🔴 Sin conexión — sigue funcionando ✅';
 }
 window.addEventListener('online',actualizar);
 window.addEventListener('offline',actualizar);
 actualizar();
 
-// Service Worker
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('sw.js').catch(()=>{});
 }
