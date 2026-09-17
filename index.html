@@ -3,166 +3,88 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ajedrez ¡ª App Sin Conexi¨®n</title>
+<title>Ajedrez</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#2c3e50">
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
-body {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #2c3e50, #34495e);
-  font-family: system-ui, sans-serif;
-  padding: 20px;
-}
-
-h1 {
-  color: #fff;
-  margin-bottom: 24px;
-  font-size: 1.8rem;
-  text-shadow: 0 2px 6px rgba(0,0,0,0.35);
-}
-
-.estado {
-  color: #9f9;
-  font-size: 0.9rem;
-  margin-bottom: 12px;
-}
-.estado.offline { color: #f99; }
-
-.tablero {
-  width: min(90vw, 560px);
-  aspect-ratio: 1 / 1;
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  grid-template-rows: repeat(8, 1fr);
-  border: 12px solid #1a1a1a;
-  box-shadow: 0 12px 32px rgba(0,0,0,0.5);
-}
-
-.casilla {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.casilla.clara  { background-color: #f0d9b5; }
-.casilla.oscura { background-color: #b58863; }
-
-.pieza {
-  width: 80%;
-  height: 80%;
-  object-fit: contain;
-  transition: transform 0.2s ease;
-  cursor: default;
-}
-.pieza:hover { transform: scale(1.1); }
-
-.pieza.negra  { filter: none; }
-.pieza.blanca { filter: invert(1) brightness(1.1); }
-
-.instala {
-  margin-top: 20px;
-  padding: 10px 20px;
-  background: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  cursor: pointer;
-  display: none;
-}
-.instala.visible { display: block; }
+*{margin:0;padding:0;box-sizing:border-box}
+body{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#2c3e50,#34495e);font-family:system-ui,sans-serif;padding:20px}
+h1{color:#fff;margin-bottom:16px;font-size:1.8rem}
+.estado{color:#9f9;margin-bottom:16px;font-size:.9rem}
+.estado.offline{color:#f99}
+.tablero{width:min(90vw,560px);aspect-ratio:1/1;display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr);border:12px solid #1a1a1a;box-shadow:0 12px 32px rgba(0,0,0,.5)}
+.casilla{display:flex;align-items:center;justify-content:center}
+.clara{background:#f0d9b5}
+.oscura{background:#b58863}
+.pieza{width:80%;height:80%;object-fit:contain;transition:transform .2s ease}
+.pieza:hover{transform:scale(1.1)}
+/* Negras = tal cual */
+.pieza.negra{filter:none}
+/* Blancas = convertidas a blanco */
+.pieza.blanca{filter:invert(1) brightness(1.1)}
 </style>
 </head>
 <body>
 
-<h1>7«2 Ajedrez 7ª6</h1>
-<div id="estado" class="estado">7¼3 En l¨ªnea ¡ª listo para usar sin conexi¨®n</div>
-<button id="btnInstalar" class="instala">”9á6 Instalar aplicaci¨®n</button>
+<h1>â™š Ajedrez â™”</h1>
+<div id="estado" class="estado">âœ… Cargando...</div>
 
 <div class="tablero" id="tablero"></div>
 
 <script>
-// === TUS iconos convertidos a SVG inline para que NO dependan de internet ===
+// TUS imÃ¡genes â€” AHORA EN TU PROPIO PROYECTO âœ…
 const iconos = {
-  Torre: `<svg viewBox="0 0 45 45" xmlns="http://www.w3.org/2000/svg"><path d="M9 39h27V33H9v6zM12 33V15h21v18M12 15V9h6v6M27 15V9h6v6" fill="#000" stroke="none"/></svg>`,
-  Caballo: `<svg viewBox="0 0 45 45" xmlns="http://www.w3.org/2000/svg"><path d="M11 37h23v-5H14l-3 5zM22 11c-4 0-7 3-7 8 0 5 4 7 7 11l1-11c2-1 4-3 4-6s-3-4-5-2z" fill="#000" stroke="none"/></svg>`,
-  Peon: `<svg viewBox="0 0 45 45" xmlns="http://www.w3.org/2000/svg"><circle cx="22.5" cy="15" r="6" fill="#000"/><path d="M15 37h15v-5H15v5z" fill="#000"/></svg>`,
-  Reina: `<svg viewBox="0 0 45 45" xmlns="http://www.w3.org/2000/svg"><path d="M8 12a8 8 0 1 0 16 0 8 8 0 1 0 16 0M12 31.5h21l-3-4.5H15l-3 4.5zM15 27V12M30 27V12" fill="#000" stroke="none"/></svg>`,
-  Rey: `<svg viewBox="0 0 45 45" xmlns="http://www.w3.org/2000/svg"><path d="M22.5 9.5V5M20 7.5h5M11 26.5h23M15 14.5h15M14 37.5h17l-2-6H16l-2 6z M22.5 14.5v-5M18 31.5V18M27 31.5V18" fill="#000" stroke="none"/></svg>`,
-  Alfil: `<svg viewBox="0 0 45 45" xmlns="http://www.w3.org/2000/svg"><circle cx="22.5" cy="15" r="6" fill="#000"/><path d="M15 39h15l-3-6H18l-3 6zM22.5 21v12" fill="#000" stroke="none"/></svg>`
+  Torre:    './Torre.png',
+  Caballo:  './Caballo.png',
+  Peon:     './Peon.png',
+  Reina:    './Reina.png',
+  Rey:      './Rey.png',
+  Alfil:    './Alfil.png'
 };
 
-const disposicion = [
-  ['Torre', 'Caballo', 'Alfil', 'Reina', 'Rey', 'Alfil', 'Caballo', 'Torre'],
-  ['Peon',  'Peon',    'Peon',  'Peon', 'Peon', 'Peon',  'Peon',    'Peon'],
-  [null, null, null, null, null, null, null, null],
-  [null, null, null, null, null, null, null, null],
-  [null, null, null, null, null, null, null, null],
-  [null, null, null, null, null, null, null, null],
-  ['Peon',  'Peon',    'Peon',  'Peon', 'Peon', 'Peon',  'Peon',    'Peon'],
-  ['Torre', 'Caballo', 'Alfil', 'Reina', 'Rey', 'Alfil', 'Caballo', 'Torre']
+const orden = [
+  ['Torre','Caballo','Alfil','Reina','Rey','Alfil','Caballo','Torre'],
+  ['Peon','Peon','Peon','Peon','Peon','Peon','Peon','Peon'],
+  [null,null,null,null,null,null,null,null],
+  [null,null,null,null,null,null,null,null],
+  [null,null,null,null,null,null,null,null],
+  [null,null,null,null,null,null,null,null],
+  ['Peon','Peon','Peon','Peon','Peon','Peon','Peon','Peon'],
+  ['Torre','Caballo','Alfil','Reina','Rey','Alfil','Caballo','Torre']
 ];
 
-const tablero = document.getElementById('tablero');
-const estado = document.getElementById('estado');
-
-// === Generar tablero ===
-for (let fila = 0; fila < 8; fila++) {
-  for (let col = 0; col < 8; col++) {
-    const casilla = document.createElement('div');
-    casilla.className = `casilla ${(fila + col) % 2 === 0 ? 'clara' : 'oscura'}`;
-
-    const tipo = disposicion[fila][col];
-    if (tipo) {
-      const div = document.createElement('div');
-      div.className = 'pieza ' + (fila <= 1 ? 'negra' : 'blanca');
-      div.innerHTML = iconos[tipo];
-      casilla.appendChild(div);
+const tab = document.getElementById('tablero');
+for(let f=0;f<8;f++){
+  for(let c=0;c<8;c++){
+    const cas = document.createElement('div');
+    cas.className = `casilla ${(f+c)%2===0?'clara':'oscura'}`;
+    const tipo = orden[f][c];
+    if(tipo){
+      const img = document.createElement('img');
+      img.src = iconos[tipo];
+      img.className = `pieza ${f<=1?'negra':'blanca'}`;
+      cas.appendChild(img);
     }
-    tablero.appendChild(casilla);
+    tab.appendChild(cas);
   }
 }
 
-// === DETECCI0ˆ7N DE CONEXI0ˆ7N ===
-function actualizarEstado() {
-  if (!navigator.onLine) {
-    estado.textContent = '”9è2 Sin conexi¨®n ¡ª funcionando desde almacenamiento local';
-    estado.classList.add('offline');
-  } else {
-    estado.textContent = '7¼3 En l¨ªnea ¡ª disponible para uso sin conexi¨®n';
-    estado.classList.remove('offline');
-  }
+// Estado conexiÃ³n
+const estado = document.getElementById('estado');
+function actualizar(){
+  estado.className = 'estado' + (navigator.onLine?'':' offline');
+  estado.textContent = navigator.onLine
+    ? 'âœ… Conectado â€” Â¡Listo para funcionar sin internet!'
+    : 'ðŸ”´ Sin conexiÃ³n â€” sigue funcionando desde lo guardado âœ…';
 }
-window.addEventListener('online', actualizarEstado);
-window.addEventListener('offline', actualizarEstado);
+window.addEventListener('online',actualizar);
+window.addEventListener('offline',actualizar);
+actualizar();
 
-// === REGISTRO DEL SERVICE WORKER ===
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js')
-    .then(reg => console.log('7¼3 Service Worker registrado', reg))
-    .catch(err => console.log('7²2„1‚5 Error al registrar SW:', err));
+// Service Worker
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
 }
-
-// === BOT0ˆ7N DE INSTALACI0ˆ7N ===
-let eventoInstalar;
-const btnInstalar = document.getElementById('btnInstalar');
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  eventoInstalar = e;
-  btnInstalar.classList.add('visible');
-});
-btnInstalar.addEventListener('click', async () => {
-  if (!eventoInstalar) return;
-  eventoInstalar.prompt();
-  const { outcome } = await eventoInstalar.userChoice;
-  if (outcome === 'accepted') btnInstalar.classList.remove('visible');
-  eventoInstalar = null;
-});
 </script>
 </body>
 </html>
