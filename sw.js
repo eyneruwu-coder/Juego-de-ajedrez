@@ -1,4 +1,4 @@
-const NOMBRE_CACHE = 'ajedrez-v1.1';
+const NOMBRE_CACHE = 'ajedrez-v1.2';
 const ARCHIVOS_CACHE = [
   './',
   './index.html',
@@ -12,7 +12,7 @@ const ARCHIVOS_CACHE = [
 ];
 
 self.addEventListener('install', e => {
-  console.log('📦 Guardando todo...');
+  console.log('📦 Guardando archivos...');
   e.waitUntil(
     caches.open(NOMBRE_CACHE)
       .then(cache => cache.addAll(ARCHIVOS_CACHE))
@@ -30,6 +30,6 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   e.respondWith(
-    caches.match(e.request).then(r => r || fetch(e.request))
+    caches.match(e.request).then(respuesta => respuesta || fetch(e.request))
   );
 });
