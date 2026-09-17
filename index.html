@@ -8,15 +8,128 @@
 <meta name="theme-color" content="#2c3e50">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#2c3e50,#34495e);font-family:system-ui,sans-serif;padding:20px}
-h1{color:#fff;margin-bottom:16px;font-size:1.8rem}
-.estado{color:#9f9;margin-bottom:16px;font-size:.9rem}
+
+body{
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  background:linear-gradient(135deg,#2c3e50,#34495e);
+  font-family:system-ui,sans-serif;
+  padding:20px
+}
+
+/* === PANTALLA DE INICIO / FORMULARIO === */
+.pantalla-inicio{
+  width:min(90vw,420px);
+  background:#fff;
+  border-radius:16px;
+  padding:30px 25px;
+  box-shadow:0 15px 40px rgba(0,0,0,.4);
+  color:#2c3e50
+}
+.pantalla-inicio h1{
+  text-align:center;
+  margin-bottom:24px;
+  font-size:1.9rem;
+  color:#2c3e50
+}
+.grupo{margin-bottom:20px}
+.grupo label{
+  display:block;
+  margin-bottom:8px;
+  font-weight:600;
+  font-size:.95rem
+}
+.grupo input[type="text"]{
+  width:100%;
+  padding:12px 14px;
+  border:2px solid #ddd;
+  border-radius:8px;
+  font-size:1rem;
+  transition:border-color .2s
+}
+.grupo input[type="text"]:focus{
+  outline:none;
+  border-color:#2c3e50
+}
+.opciones-radio{display:flex;gap:12px;flex-wrap:wrap}
+.opcion-radio{
+  flex:1;
+  min-width:100px;
+  border:2px solid #ddd;
+  border-radius:8px;
+  padding:12px;
+  text-align:center;
+  cursor:pointer;
+  transition:all .2s
+}
+.opcion-radio.activa{
+  border-color:#2c3e50;
+  background:#eef2f5
+}
+.opcion-radio input{display:none}
+select{
+  width:100%;
+  padding:12px 14px;
+  border:2px solid #ddd;
+  border-radius:8px;
+  font-size:1rem;
+  background:#fff
+}
+.btn-iniciar{
+  width:100%;
+  padding:14px;
+  background:#27ae60;
+  color:#fff;
+  border:none;
+  border-radius:8px;
+  font-size:1.1rem;
+  font-weight:bold;
+  cursor:pointer;
+  transition:background .2s
+}
+.btn-iniciar:hover{background:#219651}
+
+/* === PANTALLA DE JUEGO (oculta al inicio) === */
+.pantalla-juego{display:none;width:100%}
+.saludo{
+  color:#fff;
+  text-align:center;
+  margin-bottom:12px;
+  font-size:1.1rem
+}
+.estado{
+  color:#9f9;
+  text-align:center;
+  margin-bottom:16px;
+  font-size:.9rem
+}
 .estado.offline{color:#f99}
-.tablero{width:min(90vw,560px);aspect-ratio:1/1;display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr);border:12px solid #1a1a1a;box-shadow:0 12px 32px rgba(0,0,0,.5)}
-.casilla{display:flex;align-items:center;justify-content:center}
+.tablero{
+  width:min(90vw,560px);
+  aspect-ratio:1/1;
+  display:grid;
+  grid-template-columns:repeat(8,1fr);
+  grid-template-rows:repeat(8,1fr);
+  border:12px solid #1a1a1a;
+  box-shadow:0 12px 32px rgba(0,0,0,.5);
+  margin:0 auto
+}
+.casilla{
+  display:flex;
+  align-items:center;
+  justify-content:center
+}
 .clara{background:#f0d9b5}
 .oscura{background:#b58863}
-.pieza{width:80%;height:80%;object-fit:contain;transition:transform .2s ease}
+.pieza{
+  width:80%;
+  height:80%;
+  object-fit:contain;
+  transition:transform .2s ease
+}
 .pieza:hover{transform:scale(1.1)}
 .pieza.negra{filter:none}
 .pieza.blanca{filter:invert(1) brightness(1.1)}
@@ -24,19 +137,61 @@ h1{color:#fff;margin-bottom:16px;font-size:1.8rem}
 </head>
 <body>
 
-<h1>♚ Ajedrez ♔</h1>
-<div id="estado" class="estado">✅ Cargando...</div>
-<div class="tablero" id="tablero"></div>
+<!-- ============== FORMULARIO DE INICIO ============== -->
+<div class="pantalla-inicio" id="pantallaInicio">
+  <h1>♚ Ajedrez ♔</h1>
+
+  <div class="grupo">
+    <label for="nombre">Tu nombre</label>
+    <input type="text" id="nombre" placeholder="Escribe tu nombre..." autocomplete="off">
+  </div>
+
+  <div class="grupo">
+    <label>¿Con qué piezas juegas?</label>
+    <div class="opciones-radio">
+      <label class="opcion-radio activa" data-color="blancas">
+        <input type="radio" name="color" value="blancas" checked>
+        ⬜ Blancas
+      </label>
+      <label class="opcion-radio" data-color="negras">
+        <input type="radio" name="color" value="negras">
+        ⬛ Negras
+      </label>
+      <label class="opcion-radio" data-color="aleatorio">
+        <input type="radio" name="color" value="aleatorio">
+        🎲 Aleatorio
+      </label>
+    </div>
+  </div>
+
+  <div class="grupo">
+    <label>Nivel de dificultad</label>
+    <select id="dificultad">
+      <option value="facil">🟢 Fácil</option>
+      <option value="medio">🟡 Medio</option>
+      <option value="dificil">🔴 Difícil</option>
+    </select>
+  </div>
+
+  <button class="btn-iniciar" id="btnIniciar">▶ Iniciar partida</button>
+</div>
+
+<!-- ============== TABLERO DE JUEGO ============== -->
+<div class="pantalla-juego" id="pantallaJuego">
+  <h1 class="saludo" id="saludo"></h1>
+  <div id="estado" class="estado">✅ Cargando...</div>
+  <div class="tablero" id="tablero"></div>
+</div>
 
 <script>
-// NOMBRES EXACTOS de tus archivos
+// Tus imágenes
 const iconos = {
-  Torre:    './Torre.png',
-  Caballo:  './Caballo.png',
-  Peon:     './Peon.png',
-  Reina:    './Reina.png',
-  Rey:      './Rey.png',
-  Alfil:    './Alfil.png'
+  Torre: './Torre.png',
+  Caballo: './Caballo.png',
+  Peon: './Peon.png',
+  Reina: './Reina.png',
+  Rey: './Rey.png',
+  Alfil: './Alfil.png'
 };
 
 const orden = [
@@ -50,36 +205,100 @@ const orden = [
   ['Torre','Caballo','Alfil','Reina','Rey','Alfil','Caballo','Torre']
 ];
 
-const tab = document.getElementById('tablero');
-for(let f=0;f<8;f++){
-  for(let c=0;c<8;c++){
-    const cas = document.createElement('div');
-    cas.className = `casilla ${(f+c)%2===0?'clara':'oscura'}`;
-    const tipo = orden[f][c];
-    if(tipo){
-      const img = document.createElement('img');
-      img.src = iconos[tipo];
-      img.className = `pieza ${f<=1?'negra':'blanca'}`;
-      cas.appendChild(img);
+// === LÓGICA DEL FORMULARIO ===
+const pantallaInicio = document.getElementById('pantallaInicio');
+const pantallaJuego = document.getElementById('pantallaJuego');
+const nombreInput = document.getElementById('nombre');
+const saludo = document.getElementById('saludo');
+const btnIniciar = document.getElementById('btnIniciar');
+const opcionesColor = document.querySelectorAll('.opcion-radio');
+
+// Resaltar opción seleccionada
+opcionesColor.forEach(opcion => {
+  opcion.addEventListener('click', () => {
+    opcionesColor.forEach(o => o.classList.remove('activa'));
+    opcion.classList.add('activa');
+    opcion.querySelector('input').checked = true;
+  });
+});
+
+// Iniciar partida
+btnIniciar.addEventListener('click', () => {
+  const nombre = nombreInput.value.trim() || 'Jugador';
+  const colorElegido = document.querySelector('input[name="color"]:checked').value;
+  const dificultad = document.getElementById('dificultad').value;
+
+  // Definir color final
+  let colorJugador;
+  if(colorElegido === 'aleatorio'){
+    colorJugador = Math.random() > 0.5 ? 'blancas' : 'negras';
+  }else{
+    colorJugador = colorElegido;
+  }
+
+  // Ocultar formulario, mostrar juego
+  pantallaInicio.style.display = 'none';
+  pantallaJuego.style.display = 'block';
+
+  // Saludo personalizado
+  saludo.textContent = `¡Hola ${nombre}! Juegas con las ${colorJugador} — Nivel: ${dificultad}`;
+
+  // Dibujar tablero
+  dibujarTablero(colorJugador);
+});
+
+function dibujarTablero(colorJugador){
+  const tab = document.getElementById('tablero');
+  tab.innerHTML = '';
+
+  // Si jugador es negras, invertimos el tablero
+  const filas = colorJugador === 'negras' 
+    ? [...orden].reverse() 
+    : orden;
+
+  for(let f=0;f<8;f++){
+    for(let c=0;c<8;c++){
+      const cas = document.createElement('div');
+      cas.className = `casilla ${(f+c)%2===0?'clara':'oscura'}`;
+      
+      const tipo = filas[f][c];
+      if(tipo){
+        const img = document.createElement('img');
+        img.src = iconos[tipo];
+        
+        // Determinar color de la pieza
+        let esNegra;
+        if(colorJugador === 'blancas'){
+          esNegra = f <= 1;
+        }else{
+          esNegra = f >= 6;
+        }
+        
+        img.className = `pieza ${esNegra ? 'negra' : 'blanca'}`;
+        cas.appendChild(img);
+      }
+      tab.appendChild(cas);
     }
-    tab.appendChild(cas);
   }
 }
 
+// Estado conexión
 const estado = document.getElementById('estado');
-function actualizar(){
+function actualizarEstado(){
+  if(!pantallaJuego.style.display || pantallaJuego.style.display === 'none') return;
   estado.className = 'estado' + (navigator.onLine?'':' offline');
   estado.textContent = navigator.onLine
-    ? '✅ Conectado — ¡Listo para funcionar sin internet!'
+    ? '✅ Conectado — funciona sin internet'
     : '🔴 Sin conexión — sigue funcionando ✅';
 }
-window.addEventListener('online',actualizar);
-window.addEventListener('offline',actualizar);
-actualizar();
+window.addEventListener('online',actualizarEstado);
+window.addEventListener('offline',actualizarEstado);
 
+// Service Worker
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('sw.js').catch(()=>{});
 }
 </script>
+
 </body>
 </html>
